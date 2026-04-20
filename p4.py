@@ -39,8 +39,8 @@ for a_prime in range(8):          # input difference a' (0 to 7)
 # Print the table in a clean, submission-ready format
 # (labels match the style of the class-note table: decimal 0-7)
 print("Difference Distribution Table N_D(a', b')")
-print("a' \\ b' |  0   1   2   3   4   5   6   7")
-print("---------|--------------------------------")
+print("a' \\ b' |  0    1    2    3    4    5    6    7")
+print("--------|--------------------------------------")
 for ap in range(8):
     row = f"   {ap}    | " + "   ".join(f"{table[ap][bp]:2d}" for bp in range(8))
     print(row)
