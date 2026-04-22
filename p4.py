@@ -1,3 +1,4 @@
+from fractions import Fraction
 print("By: Tristan Price, Nathan Byun, Ahran Dymond, Barrett Larson")
 """
 PART 1
@@ -221,10 +222,81 @@ print(sketchTr3)
 PART 3
 """
 print("--- PART 3: Propagation Ratios ---")
+l = 3
+denom = 2 ** l  # = 8
+
+tr1_differentials = [(1, 1), (1, 1), (1, 1)]          # S12, S22, S32
+tr2_differentials = [(1, 1), (1, 1), (1, 1), (1, 3)]  # S12, S21, S22, S32
+tr3_differentials = [(1, 3), (1, 1), (1, 1), (3, 7)]  # S12, S21, S22, S32
+
+def total_propagation_ratio(differentials, ddt, denom):
+
+    ratio = Fraction(1)
+    for (a_prime, b_prime) in differentials:
+        nd = ddt[a_prime][b_prime]
+        ratio *= Fraction(nd, denom)
+    return ratio
+
+R1 = total_propagation_ratio(tr1_differentials, table, denom)
+R2 = total_propagation_ratio(tr2_differentials, table, denom)
+R3 = total_propagation_ratio(tr3_differentials, table, denom)
+
+print(f"\nTr1 active S-boxes and differentials (a', b'):")
+for i, (a, b) in enumerate(tr1_differentials):
+    nd = table[a][b]
+    print(f"  S-box {i+1}: ({a}, {b})  N_D = {nd}  Rp = {nd}/{denom} = {Fraction(nd,denom)}")
+print(f"  R1 = product = {R1} = {float(R1):.6f}")
+
+print(f"\nTr2 active S-boxes and differentials (a', b'):")
+for i, (a, b) in enumerate(tr2_differentials):
+    nd = table[a][b]
+    print(f"  S-box {i+1}: ({a}, {b})  N_D = {nd}  Rp = {nd}/{denom} = {Fraction(nd,denom)}")
+print(f"  R2 = product = {R2} = {float(R2):.6f}")
+
+print(f"\nTr3 active S-boxes and differentials (a', b'):")
+for i, (a, b) in enumerate(tr3_differentials):
+    nd = table[a][b]
+    print(f"  S-box {i+1}: ({a}, {b})  N_D = {nd}  Rp = {nd}/{denom} = {Fraction(nd,denom)}")
+print(f"  R3 = product = {R3} = {float(R3):.6f}")
+
+print(f"\nSummary:")
+print(f"  R1 = {R1}  (Tr1: 3 active S-boxes, all (1,1))")
+print(f"  R2 = {R2}  (Tr2: 4 active S-boxes, three (1,1) and S32 with (1,3))")
+print(f"  R3 = {R3}  (Tr3: 4 active S-boxes, S12(1,3), S21/S22(1,1), S32(3,7))")
+
 """
 PART 4
 """
 print("--- PART 4: Suitable Right 4-Tuples ---")
+four_tuples = [
+    ("100111", "100100", "100110", "111110"),  # 1
+    ("000111", "110010", "000110", "110110"),  # 2
+    ("001100", "111001", "001101", "100000"),  # 3
+    ("011000", "011101", "011001", "011111"),  # 4
+    ("001000", "001101", "001001", "000011"),  # 5
+    ("011010", "101001", "011011", "101000"),  # 6
+]
+
+def xor_bits(a, b):
+    return "".join("1" if ai != bi else "0" for ai, bi in zip(a, b))
+
+print("\nFilter: keep only tuples with y<1..3> XOR y*<1..3> = 000")
+print(f"{'#':>2}  {'x':>6}  {'y':>6}  {'x*':>6}  {'y*':>6}  |  x'      y'    verdict")
+print("-" * 66)
+
+right_tuples = []
+for i, (x, y, xs, ys) in enumerate(four_tuples, start=1):
+    xp = xor_bits(x, xs)    # input difference
+    yp = xor_bits(y, ys)    # output difference
+    keep = (yp[:3] == "000")
+    verdict = "RIGHT" if keep else "reject"
+    print(f"{i:>2}  {x:>6}  {y:>6}  {xs:>6}  {ys:>6}  |  {xp}  {yp}  {verdict}")
+    if keep:
+        right_tuples.append((i, x, y, xs, ys))
+
+print(f"\nSuitable right 4-tuples ({len(right_tuples)} found):")
+for i, x, y, xs, ys in right_tuples:
+    print(f"  Tuple {i}: (x={x}, y={y}, x*={xs}, y*={ys})")
 """
 PART 5
 """
