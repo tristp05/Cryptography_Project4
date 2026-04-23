@@ -301,3 +301,60 @@ for i, x, y, xs, ys in right_tuples:
 PART 5
 """
 print("--- PART 5: Determine Subkey Bits ---")
+
+# Create the inverse S box
+S_inv = [0] * 8
+for index in range(8):
+    S_inv[S[index]] = index
+
+c1_counts = []
+c2_counts = []
+c3_counts = []
+C_values = []
+
+print("Key | c1 | c2 | c3 | C")
+print("====|====|====|====|=========")
+
+for k in range(8):
+    c1 = c2 = c3 = 0
+    
+    for i, x, y, xs, ys in right_tuples:
+        # Extract the last 3 bits of the ciphertext
+        y_R = int(y[3:], 2)
+        ys_R = int(ys[3:], 2)
+
+        # XOR with the key guess to get the S box output J
+        J = y_R ^ k
+        Js = ys_R ^ k
+
+        # Reverse the substitution to get the S box input H
+        H = S_inv[J]
+        Hs = S_inv[Js]
+
+        # Find the input difference to S32
+        H_prime = H ^ Hs
+
+        # Increment counters based on the expected trail differences
+        if H_prime == 1:
+            c1 += 1
+        if H_prime == 3:
+            c2 += 1
+        if H_prime == 7:
+            c3 += 1
+
+    c1_counts.append(c1)
+    c2_counts.append(c2)
+    c3_counts.append(c3)
+
+    # Compute the weighted average C
+    C = R1 * c1 + R2 * c2 + R3 * c3
+    C_values.append(C)
+
+    # Print in binary format
+    key_bin = format(k, '03b')
+    print(f"{key_bin} | {c1:2} | {c2:2} | {c3:2} | {float(C):.6f}")
+
+best_key_idx = C_values.index(max(C_values))
+best_key_bin = format(best_key_idx, '03b')
+
+print(f"\n(e) The last three bits of the subkey K4 are: {best_key_bin}")
